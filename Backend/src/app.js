@@ -15,7 +15,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "school-management-system-phi-murex.vercel.app",
+      "https://school-management-system-phi-murex.vercel.app",
     ],
     credentials: true,
   }),
