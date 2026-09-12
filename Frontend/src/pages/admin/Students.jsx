@@ -1,110 +1,107 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2, Search } from 'lucide-react'
-import Card from '../../components/ui/Card.jsx'
-import Button from '../../components/ui/Button.jsx'
-import Modal from '../../components/ui/Modal.jsx'
-import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx'
-import { Field, Input, Select, Textarea } from '../../components/ui/Field.jsx'
-import { useAuth } from '../../context/AuthContext.jsx'
-import api from '../../lib/api.js'
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import Card from "../../components/ui/Card.jsx";
+import Button from "../../components/ui/Button.jsx";
+import Modal from "../../components/ui/Modal.jsx";
+import ConfirmDialog from "../../components/ui/ConfirmDialog.jsx";
+import { Field, Input, Select, Textarea } from "../../components/ui/Field.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
+import api from "../../lib/api.js";
 
 const emptyForm = {
-  name: '',
-  email: '',
-  password: '',
-  admissionNumber: '',
-  classRoom: '',
-  rollNumber: '',
-  dateOfBirth: '',
-  gender: '',
-  parentName: '',
-  parentPhone: '',
-  address: '',
-}
+  name: "",
+  email: "",
+  password: "",
+  admissionNumber: "",
+  classRoom: "",
+  rollNumber: "",
+  dateOfBirth: "",
+  gender: "",
+  parentName: "",
+  parentPhone: "",
+  address: "",
+};
 
 export default function Students() {
-  const { user } = useAuth()
-  const canManage = user?.role === 'admin'
+  const { user } = useAuth();
+  const canManage = user?.role === "admin";
 
-  const [rows, setRows] = useState([])
-  const [classOptions, setClassOptions] = useState([])
-  const [classFilter, setClassFilter] = useState('')
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [rows, setRows] = useState([]);
+  const [classOptions, setClassOptions] = useState([]);
+  const [classFilter, setClassFilter] = useState("");
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [open, setOpen] = useState(false)
-  const [editingId, setEditingId] = useState(null)
-  const [form, setForm] = useState(emptyForm)
-  const [saving, setSaving] = useState(false)
-  const [formError, setFormError] = useState('')
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
-  const [deleteTarget, setDeleteTarget] = useState(null)
-  const [deleting, setDeleting] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     api
-      .get('/classroom')
+      .get("/classroom")
       .then((res) => setClassOptions(res.data.data))
-      .catch(() => {})
-  }, [])
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
-    loadStudents()
-  }, [classFilter])
+    loadStudents();
+  }, [classFilter]);
 
   async function loadStudents() {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
     try {
-      const res = await api.get('/student', {
+      const res = await api.get("/student", {
         params: classFilter ? { classRoom: classFilter } : {},
-      })
-      setRows(res.data.data)
+      });
+      setRows(res.data.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not load students.')
+      setError(err.response?.data?.message || "Could not load students.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   function update(key) {
-    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   }
 
   function openAddModal() {
-    setEditingId(null)
-    setForm(emptyForm)
-    setFormError('')
-    setOpen(true)
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormError("");
+    setOpen(true);
   }
 
   function openEditModal(row) {
-    setEditingId(row._id)
+    setEditingId(row._id);
     setForm({
       ...emptyForm,
-      admissionNumber: row.admissionNumber || '',
-      classRoom: row.classRoom?._id || '',
-      rollNumber: row.rollNumber || '',
-      dateOfBirth: row.dateOfBirth ? row.dateOfBirth.slice(0, 10) : '',
-      gender: row.gender || '',
-      parentName: row.parentName || '',
-      parentPhone: row.parentPhone || '',
-      address: row.address || '',
-    })
-    setFormError('')
-    setOpen(true)
+      admissionNumber: row.admissionNumber || "",
+      classRoom: row.classRoom?._id || "",
+      rollNumber: row.rollNumber || "",
+      dateOfBirth: row.dateOfBirth ? row.dateOfBirth.slice(0, 10) : "",
+      gender: row.gender || "",
+      parentName: row.parentName || "",
+      parentPhone: row.parentPhone || "",
+      address: row.address || "",
+    });
+    setFormError("");
+    setOpen(true);
   }
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setFormError('')
-    setSaving(true)
+    e.preventDefault();
+    setFormError("");
+    setSaving(true);
     try {
       if (editingId) {
-        // The Student document only owns these fields — name/email/password
-        // live on User, and this endpoint (PUT /api/student/:id) can't
-        // touch those, so they're intentionally left out of the edit payload.
         await api.put(`/student/${editingId}`, {
           admissionNumber: form.admissionNumber,
           classRoom: form.classRoom,
@@ -114,53 +111,55 @@ export default function Students() {
           parentName: form.parentName,
           parentPhone: form.parentPhone,
           address: form.address,
-        })
+        });
       } else {
-        await api.post('/student', form)
+        await api.post("/student", form);
       }
-      await loadStudents()
-      setOpen(false)
+      await loadStudents();
+      setOpen(false);
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Could not save student.')
+      setFormError(err.response?.data?.message || "Could not save student.");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   async function confirmDelete() {
-    setDeleting(true)
+    setDeleting(true);
     try {
-      await api.delete(`/student/${deleteTarget._id}`)
-      setRows((r) => r.filter((row) => row._id !== deleteTarget._id))
-      setDeleteTarget(null)
+      await api.delete(`/student/${deleteTarget._id}`);
+      setRows((r) => r.filter((row) => row._id !== deleteTarget._id));
+      setDeleteTarget(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not delete student.')
-      setDeleteTarget(null)
+      setError(err.response?.data?.message || "Could not delete student.");
+      setDeleteTarget(null);
     } finally {
-      setDeleting(false)
+      setDeleting(false);
     }
   }
 
   function classLabel(c) {
-    return `${c.name} ${c.section}`
+    return `${c.name} ${c.section}`;
   }
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return rows
+    const q = search.trim().toLowerCase();
+    if (!q) return rows;
     return rows.filter((r) =>
       [r.user?.name, r.admissionNumber, String(r.rollNumber), r.parentName]
         .filter(Boolean)
-        .some((v) => v.toLowerCase().includes(q))
-    )
-  }, [rows, search])
+        .some((v) => v.toLowerCase().includes(q)),
+    );
+  }, [rows, search]);
 
   return (
     <div className="max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-ink-900">Students</h1>
-          <p className="text-sm text-ink-500 mt-1">Manage all students and their details.</p>
+          <p className="text-sm text-ink-500 mt-1">
+            Manage all students and their details.
+          </p>
         </div>
         {canManage && (
           <Button icon={Plus} onClick={openAddModal}>
@@ -171,7 +170,10 @@ export default function Students() {
 
       <div className="mt-6 flex flex-col sm:flex-row gap-3">
         <div className="max-w-xs w-full">
-          <Select value={classFilter} onChange={(e) => setClassFilter(e.target.value)}>
+          <Select
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+          >
             <option value="">All Classes</option>
             {classOptions.map((c) => (
               <option key={c._id} value={c._id}>
@@ -181,7 +183,10 @@ export default function Students() {
           </Select>
         </div>
         <div className="relative max-w-xs w-full">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500"
+          />
           <Input
             placeholder="Search students..."
             className="pl-9"
@@ -192,7 +197,9 @@ export default function Students() {
       </div>
 
       {error && (
-        <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+        <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
+          {error}
+        </p>
       )}
 
       <Card className="mt-4 overflow-hidden">
@@ -206,33 +213,52 @@ export default function Students() {
                 <th className="font-medium px-5 py-3">Class</th>
                 <th className="font-medium px-5 py-3">Parent Name</th>
                 <th className="font-medium px-5 py-3">Parent Phone</th>
-                {canManage && <th className="font-medium px-5 py-3 text-right">Actions</th>}
+                {canManage && (
+                  <th className="font-medium px-5 py-3 text-right">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-6 text-center text-ink-500">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-6 text-center text-ink-500"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-6 text-center text-ink-500">
-                    {rows.length === 0 ? 'No students found.' : 'No students match your search.'}
+                  <td
+                    colSpan={7}
+                    className="px-5 py-6 text-center text-ink-500"
+                  >
+                    {rows.length === 0
+                      ? "No students found."
+                      : "No students match your search."}
                   </td>
                 </tr>
               ) : (
                 filtered.map((row) => (
-                  <tr key={row._id} className="border-b border-ink-100 last:border-0">
+                  <tr
+                    key={row._id}
+                    className="border-b border-ink-100 last:border-0"
+                  >
                     <td className="px-5 py-3 text-ink-700">{row.rollNumber}</td>
-                    <td className="px-5 py-3 text-ink-900 font-medium">{row.user?.name}</td>
-                    <td className="px-5 py-3 text-ink-700">{row.admissionNumber}</td>
+                    <td className="px-5 py-3 text-ink-900 font-medium">
+                      {row.user?.name}
+                    </td>
                     <td className="px-5 py-3 text-ink-700">
-                      {row.classRoom ? classLabel(row.classRoom) : '—'}
+                      {row.admissionNumber}
+                    </td>
+                    <td className="px-5 py-3 text-ink-700">
+                      {row.classRoom ? classLabel(row.classRoom) : "—"}
                     </td>
                     <td className="px-5 py-3 text-ink-700">{row.parentName}</td>
-                    <td className="px-5 py-3 text-ink-700">{row.parentPhone}</td>
+                    <td className="px-5 py-3 text-ink-700">
+                      {row.parentPhone}
+                    </td>
                     {canManage && (
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-3">
@@ -271,7 +297,7 @@ export default function Students() {
         <Modal
           open={open}
           onClose={() => setOpen(false)}
-          title={editingId ? 'Edit Student' : 'Add Student'}
+          title={editingId ? "Edit Student" : "Add Student"}
           width="max-w-2xl"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -283,7 +309,7 @@ export default function Students() {
                       required
                       placeholder="Enter name"
                       value={form.name}
-                      onChange={update('name')}
+                      onChange={update("name")}
                     />
                   </Field>
                   <Field label="Email">
@@ -292,7 +318,7 @@ export default function Students() {
                       required
                       placeholder="Enter email"
                       value={form.email}
-                      onChange={update('email')}
+                      onChange={update("email")}
                     />
                   </Field>
                 </div>
@@ -303,7 +329,7 @@ export default function Students() {
                     minLength={6}
                     placeholder="Create password"
                     value={form.password}
-                    onChange={update('password')}
+                    onChange={update("password")}
                   />
                 </Field>
               </>
@@ -311,8 +337,8 @@ export default function Students() {
 
             {editingId && (
               <p className="text-xs text-ink-500 bg-ink-100 rounded-lg px-3 py-2">
-                Name, email, and password can't be changed here — only student-specific
-                details below.
+                Name, email, and password can't be changed here — only
+                student-specific details below.
               </p>
             )}
 
@@ -322,7 +348,7 @@ export default function Students() {
                   required
                   placeholder="Enter admission no"
                   value={form.admissionNumber}
-                  onChange={update('admissionNumber')}
+                  onChange={update("admissionNumber")}
                 />
               </Field>
               <Field label="Roll Number">
@@ -331,14 +357,18 @@ export default function Students() {
                   required
                   placeholder="Enter roll number"
                   value={form.rollNumber}
-                  onChange={update('rollNumber')}
+                  onChange={update("rollNumber")}
                 />
               </Field>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Class">
-                <Select required value={form.classRoom} onChange={update('classRoom')}>
+                <Select
+                  required
+                  value={form.classRoom}
+                  onChange={update("classRoom")}
+                >
                   <option value="">Select class</option>
                   {classOptions.map((c) => (
                     <option key={c._id} value={c._id}>
@@ -348,7 +378,11 @@ export default function Students() {
                 </Select>
               </Field>
               <Field label="Gender">
-                <Select required value={form.gender} onChange={update('gender')}>
+                <Select
+                  required
+                  value={form.gender}
+                  onChange={update("gender")}
+                >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -358,7 +392,11 @@ export default function Students() {
             </div>
 
             <Field label="Date of Birth">
-              <Input type="date" value={form.dateOfBirth} onChange={update('dateOfBirth')} />
+              <Input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={update("dateOfBirth")}
+              />
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -367,7 +405,7 @@ export default function Students() {
                   required
                   placeholder="Enter parent name"
                   value={form.parentName}
-                  onChange={update('parentName')}
+                  onChange={update("parentName")}
                 />
               </Field>
               <Field label="Parent Phone">
@@ -375,23 +413,35 @@ export default function Students() {
                   required
                   placeholder="Enter phone number"
                   value={form.parentPhone}
-                  onChange={update('parentPhone')}
+                  onChange={update("parentPhone")}
                 />
               </Field>
             </div>
 
             <Field label="Address">
-              <Textarea placeholder="Enter address" value={form.address} onChange={update('address')} />
+              <Textarea
+                placeholder="Enter address"
+                value={form.address}
+                onChange={update("address")}
+              />
             </Field>
 
             {formError && <p className="text-sm text-red-500">{formError}</p>}
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Add Student'}
+                {saving
+                  ? "Saving..."
+                  : editingId
+                    ? "Save Changes"
+                    : "Add Student"}
               </Button>
             </div>
           </form>
@@ -404,12 +454,12 @@ export default function Students() {
         message={
           deleteTarget
             ? `This will permanently delete ${deleteTarget.user?.name} and their login access. This can't be undone.`
-            : ''
+            : ""
         }
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
         loading={deleting}
       />
     </div>
-  )
+  );
 }

@@ -43,7 +43,6 @@ export default function Sidebar({ open = false, onClose }) {
 
   return (
     <>
-      {/* Overlay - mobile only, shown when drawer is open */}
       {open && (
         <div
           className="fixed inset-0 z-30 bg-ink-900/40 lg:hidden"

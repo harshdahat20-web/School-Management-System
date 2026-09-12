@@ -1,36 +1,36 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { User, Mail, Lock } from 'lucide-react'
-import Logo from '../components/Logo.jsx'
-import Card from '../components/ui/Card.jsx'
-import { Field, Input } from '../components/ui/Field.jsx'
-import Button from '../components/ui/Button.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { User, Mail, Lock } from "lucide-react";
+import Logo from "../components/Logo.jsx";
+import Card from "../components/ui/Card.jsx";
+import { Field, Input } from "../components/ui/Field.jsx";
+import Button from "../components/ui/Button.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '' })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const { register } = useAuth()
-  const navigate = useNavigate()
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   function update(key) {
-    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   }
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
-      await register(form)
-      // Register doesn't log the user in (backend sets no cookie here) —
-      // send them to /login to sign in with their new account.
-      navigate('/login', { state: { justRegistered: true } })
+      await register(form);
+      navigate("/login", { state: { justRegistered: true } });
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not create account. Try again.')
+      setError(
+        err.response?.data?.message || "Could not create account. Try again.",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -54,7 +54,7 @@ export default function Register() {
                 required
                 placeholder="Enter your name"
                 value={form.name}
-                onChange={update('name')}
+                onChange={update("name")}
               />
             </Field>
 
@@ -65,7 +65,7 @@ export default function Register() {
                 required
                 placeholder="you@example.com"
                 value={form.email}
-                onChange={update('email')}
+                onChange={update("email")}
               />
             </Field>
 
@@ -76,25 +76,28 @@ export default function Register() {
                 required
                 placeholder="Create a strong password"
                 value={form.password}
-                onChange={update('password')}
+                onChange={update("password")}
               />
             </Field>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account…' : 'Register'}
+              {loading ? "Creating account…" : "Register"}
             </Button>
           </form>
 
           <p className="text-center text-sm text-ink-500 mt-5">
-            Already have an account?{' '}
-            <Link to="/login" className="text-brand-500 font-medium hover:underline">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-brand-500 font-medium hover:underline"
+            >
               Login
             </Link>
           </p>
         </Card>
       </div>
     </div>
-  )
+  );
 }
