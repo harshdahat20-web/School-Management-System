@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Classes from './pages/admin/Classes.jsx'
 import Teachers from './pages/admin/Teachers.jsx'
 import Students from './pages/admin/Students.jsx'
+import PendingApprovals from './pages/admin/PendingApprovals.jsx'
 import MarkAttendance from './pages/shared/MarkAttendance.jsx'
 import AttendanceHistory from './pages/shared/AttendanceHistory.jsx'
 import DashboardLayout from './layouts/DashboardLayout.jsx'
@@ -50,7 +51,8 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-      
+        {/* Marking attendance hits POST /api/attendance/mark, which the
+            backend restricts to admin + teacher — gate the page the same way. */}
         <Route
           path="/attendance"
           element={
@@ -59,8 +61,17 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-     
+        {/* GET /api/attendance has no role restriction on the backend,
+            so history stays open to every logged-in role. */}
         <Route path="/attendance/history" element={<AttendanceHistory />} />
+        <Route
+          path="/pending-approvals"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <PendingApprovals />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />

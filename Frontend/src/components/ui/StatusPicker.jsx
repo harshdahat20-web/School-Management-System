@@ -5,6 +5,7 @@ const OPTIONS = [
   { value: 'leave', label: 'Leave', active: 'bg-ink-500 text-white', idle: 'text-ink-500 hover:bg-ink-100' },
 ]
 
+// value/onChange use the exact backend enum: "present" | "absent" | "late" | "leave"
 export default function StatusPicker({ value, onChange }) {
   return (
     <div className="inline-flex rounded-lg border border-ink-100 p-0.5 gap-0.5">

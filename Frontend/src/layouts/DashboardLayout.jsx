@@ -10,6 +10,7 @@ const TITLES = {
   '/students': 'Students',
   '/attendance': 'Mark Attendance',
   '/attendance/history': 'Attendance History',
+  '/pending-approvals': 'Pending Approvals',
 }
 
 export default function DashboardLayout() {

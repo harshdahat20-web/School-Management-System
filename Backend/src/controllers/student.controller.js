@@ -1,7 +1,6 @@
 const User = require("../models/user.model");
 const Student = require("../models/student.model");
 const Classroom = require("../models/classroom.model");
-const generateToken = require("../utils/generateToken");
 const {
   createStudentSchema,
   selfRegisterSchema,
@@ -204,6 +203,10 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+// Public — a student registers themselves. Unlike admin-created students,
+// admissionNumber and rollNumber are generated here (not provided by the
+// client), and on success the user is logged in immediately (same cookie
+// as /api/auth/login) so the frontend can go straight to the dashboard.
 const selfRegisterStudent = async (req, res) => {
   try {
     const result = selfRegisterSchema.safeParse(req.body);
@@ -248,6 +251,7 @@ const selfRegisterStudent = async (req, res) => {
       email,
       password,
       role: "student",
+      status: "pending",
     });
 
     const totalStudents = await Student.countDocuments();
@@ -256,7 +260,7 @@ const selfRegisterStudent = async (req, res) => {
     const studentsInClass = await Student.countDocuments({ classRoom });
     const rollNumber = String(studentsInClass + 1);
 
-    const student = await Student.create({
+    await Student.create({
       user: user._id,
       admissionNumber,
       classRoom,
@@ -268,29 +272,15 @@ const selfRegisterStudent = async (req, res) => {
       address,
     });
 
-    const token = generateToken(user._id, user.role);
-
-    const cookieOpt = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      maxAge: Number(process.env.COOKIE_MAX_AGE),
-    };
-
-    return res
-      .status(201)
-      .cookie("accessToken", token, cookieOpt)
-      .json({
-        success: true,
-        message: "Registered successfully",
-        data: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          student,
-        },
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Registered successfully, waiting for admin approval",
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({

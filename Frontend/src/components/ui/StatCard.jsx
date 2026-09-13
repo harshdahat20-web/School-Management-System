@@ -1,13 +1,15 @@
-import Card from "./Card.jsx";
+import Card from './Card.jsx'
 
+// Full pastel card background per stat, with a small solid dark icon badge —
+// no border needed since the tint itself gives the card its edge.
 const TONES = {
-  brand: "bg-violet-100",
-  green: "bg-sky-100",
-  amber: "bg-emerald-100",
-  purple: "bg-amber-100",
-};
+  brand: 'bg-violet-100',
+  green: 'bg-sky-100',
+  amber: 'bg-emerald-100',
+  purple: 'bg-amber-100',
+}
 
-export default function StatCard({ icon: Icon, label, value, tone = "brand" }) {
+export default function StatCard({ icon: Icon, label, value, tone = 'brand' }) {
   return (
     <Card className={`p-5 border-0 ${TONES[tone]}`}>
       <div className="flex items-center gap-2.5">
@@ -18,5 +20,5 @@ export default function StatCard({ icon: Icon, label, value, tone = "brand" }) {
       </div>
       <p className="text-3xl font-bold text-ink-900 mt-3">{value}</p>
     </Card>
-  );
+  )
 }

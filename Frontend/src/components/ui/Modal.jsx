@@ -25,7 +25,8 @@ export default function Modal({ open, onClose, title, children, width = 'max-w-l
         aria-modal="true"
         aria-label={title}
       >
-       
+        {/* Header is a normal flex item (not scrolling), so it can never
+            overlap body content — no reliance on sticky positioning. */}
         <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-ink-100">
           <h2 className="text-base font-semibold text-ink-900">{title}</h2>
           <button

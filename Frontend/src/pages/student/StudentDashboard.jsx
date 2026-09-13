@@ -21,6 +21,9 @@ export default function StudentDashboard() {
 
     async function load() {
       try {
+        // No GET /api/student/me yet — find this user's Student record by
+        // matching the logged-in User id (GET /api/student has no role
+        // restriction, so a student can call it too).
         const studentsRes = await api.get('/student')
         const myRecord = studentsRes.data.data.find((s) => s.user?._id === user?.id)
         if (!myRecord) {

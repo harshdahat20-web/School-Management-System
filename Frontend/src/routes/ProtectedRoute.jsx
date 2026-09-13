@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 export default function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth()
 
+  // Still checking the session cookie (GET /api/user/me) — avoid a flash
+  // redirect to /login on page refresh while that's in flight.
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-ink-100">

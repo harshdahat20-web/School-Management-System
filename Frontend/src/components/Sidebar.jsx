@@ -6,6 +6,7 @@ import {
   GraduationCap,
   CalendarCheck,
   History,
+  UserCheck,
   LogOut,
   X,
 } from 'lucide-react'
@@ -20,6 +21,7 @@ const NAV = {
     { to: '/students', label: 'Students', icon: Users },
     { to: '/attendance', label: 'Mark Attendance', icon: CalendarCheck },
     { to: '/attendance/history', label: 'Attendance History', icon: History },
+    { to: '/pending-approvals', label: 'Pending Approvals', icon: UserCheck },
   ],
   teacher: [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -43,7 +45,7 @@ export default function Sidebar({ open = false, onClose }) {
 
   return (
     <>
-
+      {/* Overlay - mobile only, shown when drawer is open */}
       {open && (
         <div
           className="fixed inset-0 z-30 bg-ink-900/40 lg:hidden"

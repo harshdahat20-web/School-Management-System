@@ -102,7 +102,9 @@ export default function Students() {
     setSaving(true)
     try {
       if (editingId) {
-   
+        // The Student document only owns these fields — name/email/password
+        // live on User, and this endpoint (PUT /api/student/:id) can't
+        // touch those, so they're intentionally left out of the edit payload.
         await api.put(`/student/${editingId}`, {
           admissionNumber: form.admissionNumber,
           classRoom: form.classRoom,

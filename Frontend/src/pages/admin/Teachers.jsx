@@ -95,6 +95,9 @@ export default function Teachers() {
     setSaving(true)
     try {
       if (editingId) {
+        // The Teacher document only owns these 4 fields — name/email/password
+        // live on User, and this endpoint (PUT /api/teacher/:id) can't touch
+        // those, so they're intentionally left out of the edit payload.
         await api.put(`/teacher/${editingId}`, {
           employeeId: form.employeeId,
           subjects: form.subjects,

@@ -41,6 +41,8 @@ export default function MarkAttendance() {
         api.get('/attendance', { params: { classRoom: selectedClass, date } }),
       ])
 
+      // Map existing statuses for this date by student id, so re-loading
+      // the same class/date shows what's already been marked.
       const existingByStudent = {}
       attendanceRes.data.data.forEach((a) => {
         const studentId = a.student?._id || a.student

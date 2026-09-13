@@ -1,6 +1,9 @@
 const User = require("../models/user.model");
 const Teacher = require("../models/teacher.model");
-const { createTeacherSchema } = require("../validations/teacher.validation");
+const {
+  createTeacherSchema,
+  selfRegisterSchema,
+} = require("../validations/teacher.validation");
 
 const createTeacher = async (req, res) => {
   try {
@@ -172,10 +175,70 @@ const deleteTeacher = async (req, res) => {
   }
 };
 
+const selfRegisterTeacher = async (req, res) => {
+  try {
+    const result = selfRegisterSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error.issues[0].message,
+      });
+    }
+
+    const { name, email, password, subjects, qualification, phone } =
+      result.data;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists",
+      });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: "teacher",
+      status: "pending",
+    });
+
+    const totalTeachers = await Teacher.countDocuments();
+    const employeeId = `EMP-${String(totalTeachers + 1).padStart(4, "0")}`;
+
+    await Teacher.create({
+      user: user._id,
+      employeeId,
+      subjects,
+      qualification,
+      phone,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Registered successfully, waiting for admin approval",
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   createTeacher,
   getAllTeachers,
   getTeacherById,
   updateTeacher,
   deleteTeacher,
+  selfRegisterTeacher,
 };
