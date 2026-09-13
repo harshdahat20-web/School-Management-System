@@ -46,10 +46,14 @@ const createClassroom = async (req, res) => {
 
 const getAllClassroom = async (req, res) => {
   try {
-    const classrooms = await Classroom.find().populate(
-      "classTeacher",
-      "name email",
-    );
+    const classrooms = await Classroom.find().populate({
+      path: "classTeacher",
+      select: "employeeId user",
+      populate: {
+        path: "user",
+        select: "name email",
+      },
+    });
 
     return res.status(200).json({
       success: true,
@@ -68,10 +72,14 @@ const getAllClassroom = async (req, res) => {
 const getClassroomById = async (req, res) => {
   try {
     const { id } = req.params;
-    const classroom = await Classroom.findById(id).populate(
-      "classTeacher",
-      "name email",
-    );
+    const classroom = await Classroom.findById(id).populate({
+      path: "classTeacher",
+      select: "employeeId user",
+      populate: {
+        path: "user",
+        select: "name email",
+      },
+    });
     if (!classroom) {
       return res.status(404).json({
         success: false,
