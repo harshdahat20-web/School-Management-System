@@ -2,16 +2,22 @@
 
 A full-stack school management system with role-based access for admins,
 teachers, and students — classroom, teacher, and student management,
-plus attendance tracking. Built with the MERN stack.
+attendance tracking, and self-service student registration. Built with
+the MERN stack.
 
-**Live app:** _add your deployed frontend URL here once live_
-**Live API:** _add your deployed backend URL here once live_
+**Live app:** _add your Vercel URL here_
+**Live API:** _add your Render URL here_
 
 ## Features
 
-- **Authentication** — register/login/logout with JWT stored in an
-  httpOnly cookie (not localStorage, so it's not readable by client-side
-  JavaScript)
+- **Authentication** — login/logout with JWT stored in an httpOnly cookie
+  (not localStorage, so it's not readable by client-side JavaScript)
+- **Student self-registration** — students can create their own account,
+  picking their class from a public list; admission number and roll
+  number are auto-generated server-side (not user-editable, so they can't
+  collide or be faked), and the student is logged straight into their
+  dashboard on success. Teacher and admin accounts are created by an
+  admin, not self-registered.
 - **Role-based access control** — three roles (`admin`, `teacher`,
   `student`), enforced on both the API and the UI
 - **Classroom, Teacher, Student management** — full CRUD, with client-side
@@ -43,7 +49,7 @@ School management system/
 └── frontend/
     └── src/
         ├── components/      Sidebar, Topbar, Logo
-        ├── components/ui/   Button, Card, Modal, ConfirmDialog, Field, etc.
+        ├── components/ui/   Button, Card, Modal, ConfirmDialog, StatCard, etc.
         ├── context/         AuthContext
         ├── lib/api.js       Axios instance
         ├── layouts/         DashboardLayout
@@ -104,7 +110,7 @@ Open `http://localhost:5173`.
 ### Auth — `/api/auth`
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/register` | Public | Create an account (defaults to `student` role) |
+| POST | `/register` | Public | Create a bare account (defaults to `student` role, no profile) |
 | POST | `/login` | Public | Log in, sets an httpOnly session cookie |
 | POST | `/logout` | Logged in | Clears the session cookie |
 
@@ -116,6 +122,7 @@ Open `http://localhost:5173`.
 ### Classroom — `/api/classroom`
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
+| GET | `/public` | Public | Minimal class list (name, section) — used by the registration form |
 | POST | `/` | Admin | Create a classroom |
 | GET | `/` | Logged in | List all classrooms |
 | GET | `/:id` | Logged in | Get one classroom |
@@ -134,6 +141,7 @@ Open `http://localhost:5173`.
 ### Student — `/api/student`
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
+| POST | `/self-register` | Public | Student self-registration — auto-generates admissionNumber/rollNumber, logs the student in |
 | POST | `/` | Admin | Admit a student (creates linked User + Student) |
 | GET | `/?classRoom=<id>` | Logged in | List students, optionally filtered by class |
 | GET | `/:id` | Logged in | Get one student |
@@ -165,10 +173,19 @@ Attendance (student → Student, classRoom → ClassRoom, date, status, markedBy
 
 | Route | Description |
 |---|---|
-| `/login`, `/register` | Auth |
+| `/login` | Login |
+| `/register` | Student self-registration (name, email, password, class, DOB, gender, parent info) |
 | `/dashboard` | Role-aware dashboard (Admin / Teacher / Student) |
-| `/classes` | Classroom list + CRUD (admin) |
-| `/teachers` | Teacher list + CRUD (admin) |
-| `/students` | Student list + CRUD (admin), filterable by class |
+| `/classes` | Classroom list + CRUD (admin), card-grid layout |
+| `/teachers` | Teacher list + CRUD (admin), card-grid layout |
+| `/students` | Student list + CRUD (admin), card-grid layout, filterable by class |
 | `/attendance` | Mark attendance for a class (admin, teacher) |
 | `/attendance/history` | Attendance table + per-student calendar |
+
+## Design
+
+Warm, friendly color system (maroon primary, teal + amber accents, cream
+background) rather than a cold corporate blue-and-gray look — chosen to
+feel approachable for a school context. Colors are defined once as
+Tailwind theme tokens (`tailwind.config.js`), so the whole UI re-themes
+from that single file.
