@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // true until the initial /me check resolves
 
   useEffect(() => {
     refreshUser().finally(() => setLoading(false));
@@ -33,6 +33,11 @@ export function AuthProvider({ children }) {
     return res.data.data;
   }
 
+  async function registerStudent(formData) {
+    const me = await refreshUser();
+    return me;
+  }
+
   async function logout() {
     try {
       await api.post("/auth/logout");
@@ -43,7 +48,15 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, refreshUser }}
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        registerStudent,
+        logout,
+        refreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

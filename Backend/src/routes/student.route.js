@@ -9,10 +9,12 @@ const {
   getStudentById,
   updateStudent,
   deleteStudent,
+  selfRegisterStudent,
 } = require("../controllers/student.controller");
 
 const router = Router();
 
+router.post("/self-register", selfRegisterStudent);
 router.post("/", authMiddleware, authorizeRoles("admin"), createStudent);
 router.get("/", authMiddleware, getAllStudents);
 router.get("/:id", authMiddleware, getStudentById);

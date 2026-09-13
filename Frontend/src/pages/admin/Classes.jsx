@@ -36,6 +36,7 @@ export default function Classes() {
 
   useEffect(() => {
     loadClassrooms();
+
     api
       .get("/teacher")
       .then((res) => setTeacherOptions(res.data.data))
@@ -156,90 +157,61 @@ export default function Classes() {
         </p>
       )}
 
-      <Card className="mt-4 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-ink-500 border-b border-ink-100">
-                <th className="font-medium px-5 py-3">Class</th>
-                <th className="font-medium px-5 py-3">Section</th>
-                <th className="font-medium px-5 py-3">Academic Year</th>
-                <th className="font-medium px-5 py-3">Class Teacher</th>
+      {loading ? (
+        <p className="mt-6 text-sm text-ink-500">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <Card className="mt-4 p-10 text-center text-sm text-ink-500">
+          {rows.length === 0
+            ? "No classrooms yet."
+            : "No classes match your search."}
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {filtered.map((row) => (
+            <Card key={row._id} className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="w-11 h-11 rounded-xl2 bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  {row.section}
+                </div>
                 {canManage && (
-                  <th className="font-medium px-5 py-3 text-right">Actions</th>
+                  <div className="flex items-center gap-3">
+                    <button
+                      className="text-brand-500 hover:text-brand-600"
+                      aria-label="Edit"
+                      onClick={() => openEditModal(row)}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-600"
+                      aria-label="Delete"
+                      onClick={() => setDeleteTarget(row)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 )}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-5 py-6 text-center text-ink-500"
-                  >
-                    Loading...
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-5 py-6 text-center text-ink-500"
-                  >
-                    {rows.length === 0
-                      ? "No classrooms yet."
-                      : "No classes match your search."}
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((row) => (
-                  <tr
-                    key={row._id}
-                    className="border-b border-ink-100 last:border-0"
-                  >
-                    <td className="px-5 py-3 text-ink-900 font-medium">
-                      {row.name}
-                    </td>
-                    <td className="px-5 py-3 text-ink-700">{row.section}</td>
-                    <td className="px-5 py-3 text-ink-700">
-                      {row.academicYear}
-                    </td>
-                    <td className="px-5 py-3 text-ink-700">
-                      {row.classTeacher?.user?.name || "—"}
-                    </td>
-                    {canManage && (
-                      <td className="px-5 py-3">
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            className="text-brand-500 hover:text-brand-600"
-                            aria-label="Edit"
-                            onClick={() => openEditModal(row)}
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            className="text-red-500 hover:text-red-600"
-                            aria-label="Delete"
-                            onClick={() => setDeleteTarget(row)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-t border-ink-100">
-          <p className="text-xs text-ink-500">
-            Showing 1-{filtered.length} of {rows.length}
-          </p>
+              <p className="text-base font-semibold text-ink-900 mt-3">
+                {row.name} — Section {row.section}
+              </p>
+              <p className="text-xs text-ink-500 mt-0.5">{row.academicYear}</p>
+
+              <div className="mt-4 pt-4 border-t border-ink-100">
+                <p className="text-xs text-ink-500">Class Teacher</p>
+                <p className="text-sm font-medium text-ink-900 mt-0.5">
+                  {row.classTeacher?.user?.name || "— not assigned"}
+                </p>
+              </div>
+            </Card>
+          ))}
         </div>
-      </Card>
+      )}
+
+      <p className="text-xs text-ink-500 mt-4">
+        Showing {filtered.length} of {rows.length} classrooms
+      </p>
 
       {canManage && (
         <Modal

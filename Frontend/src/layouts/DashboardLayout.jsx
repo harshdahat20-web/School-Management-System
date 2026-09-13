@@ -17,7 +17,7 @@ export default function DashboardLayout() {
   const { pathname } = useLocation()
 
   return (
-    <div className="flex min-h-screen bg-ink-100">
+    <div className="flex min-h-screen bg-cream">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar title={TITLES[pathname] || 'SchoolMS'} onMenuClick={() => setSidebarOpen(true)} />

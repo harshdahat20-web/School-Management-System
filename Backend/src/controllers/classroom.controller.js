@@ -46,14 +46,10 @@ const createClassroom = async (req, res) => {
 
 const getAllClassroom = async (req, res) => {
   try {
-    const classrooms = await Classroom.find().populate({
-      path: "classTeacher",
-      select: "employeeId user",
-      populate: {
-        path: "user",
-        select: "name email",
-      },
-    });
+    const classrooms = await Classroom.find().populate(
+      "classTeacher",
+      "name email",
+    );
 
     return res.status(200).json({
       success: true,
@@ -72,14 +68,10 @@ const getAllClassroom = async (req, res) => {
 const getClassroomById = async (req, res) => {
   try {
     const { id } = req.params;
-    const classroom = await Classroom.findById(id).populate({
-      path: "classTeacher",
-      select: "employeeId user",
-      populate: {
-        path: "user",
-        select: "name email",
-      },
-    });
+    const classroom = await Classroom.findById(id).populate(
+      "classTeacher",
+      "name email",
+    );
     if (!classroom) {
       return res.status(404).json({
         success: false,
@@ -152,10 +144,29 @@ const deleteClassroom = async (req, res) => {
   }
 };
 
+const getPublicClassrooms = async (req, res) => {
+  try {
+    const classrooms = await Classroom.find().select("name section");
+
+    return res.status(200).json({
+      success: true,
+      message: "Classrooms fetched successfully",
+      data: classrooms,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   createClassroom,
   getAllClassroom,
   getClassroomById,
   updateClassroom,
   deleteClassroom,
+  getPublicClassrooms,
 };

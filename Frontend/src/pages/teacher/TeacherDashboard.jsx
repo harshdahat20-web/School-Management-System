@@ -17,9 +17,7 @@ export default function TeacherDashboard() {
 
     async function load() {
       try {
-        // The backend has no GET /api/teacher/me yet — find this user's
-        // Teacher record by matching the logged-in User id within the
-        // full list (GET /api/teacher has no role restriction).
+  
         const teachersRes = await api.get('/teacher')
         const me = teachersRes.data.data.find((t) => t.user?._id === user?.id)
         if (!me) {
@@ -39,7 +37,7 @@ export default function TeacherDashboard() {
 
         if (!cancelled) setMyClasses(withCounts)
       } catch {
-        // leave myClasses empty on failure
+
       } finally {
         if (!cancelled) setLoading(false)
       }

@@ -5,6 +5,7 @@ const {
   getClassroomById,
   updateClassroom,
   deleteClassroom,
+  getPublicClassrooms,
 } = require("../controllers/classroom.controller");
 const {
   authMiddleware,
@@ -14,6 +15,7 @@ const {
 const router = Router();
 
 router.post("/", authMiddleware, authorizeRoles("admin"), createClassroom);
+router.get("/public", getPublicClassrooms);
 router.get("/", authMiddleware, getAllClassroom);
 router.get("/:id", authMiddleware, getClassroomById);
 router.put("/:id", authMiddleware, authorizeRoles("admin"), updateClassroom);

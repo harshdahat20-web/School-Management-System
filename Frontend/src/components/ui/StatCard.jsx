@@ -1,31 +1,34 @@
 import Card from './Card.jsx'
 
+const TONES = {
+  brand: 'bg-brand-500',
+  green: 'bg-teal-500',
+  amber: 'bg-amber-500',
+  purple: 'bg-sky-500',
+}
+
 export default function StatCard({ icon: Icon, label, value, delta, tone = 'brand' }) {
-  const tones = {
-    brand: 'bg-brand-50 text-brand-600',
-    green: 'bg-emerald-50 text-emerald-600',
-    amber: 'bg-amber-50 text-amber-600',
-    purple: 'bg-violet-50 text-violet-600',
-  }
   const positive = delta?.startsWith('+')
 
   return (
-    <Card className="p-5">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tones[tone]}`}>
-        <Icon size={20} />
+    <Card className="p-5 flex items-center gap-4">
+      <div
+        className={`w-12 h-12 rounded-xl2 flex items-center justify-center text-white shrink-0 ${TONES[tone]}`}
+      >
+        <Icon size={22} />
       </div>
-      <p className="text-2xl font-bold text-ink-900 mt-4">{value}</p>
-      <div className="flex items-center gap-2 mt-1">
+      <div className="min-w-0">
         <p className="text-sm text-ink-500">{label}</p>
-        {delta && (
-          <span
-            className={`text-xs font-medium ${
-              positive ? 'text-emerald-600' : 'text-red-500'
-            }`}
-          >
-            {delta}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          <p className="text-2xl font-bold text-ink-900">{value}</p>
+          {delta && (
+            <span
+              className={`text-xs font-medium ${positive ? 'text-teal-600' : 'text-red-500'}`}
+            >
+              {delta}
+            </span>
+          )}
+        </div>
       </div>
     </Card>
   )

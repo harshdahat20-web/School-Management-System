@@ -31,7 +31,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink-100 px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-cream px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center text-center mb-6">
           <Logo size="lg" />

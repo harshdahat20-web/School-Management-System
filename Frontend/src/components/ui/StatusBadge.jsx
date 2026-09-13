@@ -1,3 +1,4 @@
+
 const styles = {
   present: 'bg-emerald-50 text-emerald-600',
   absent: 'bg-red-50 text-red-500',

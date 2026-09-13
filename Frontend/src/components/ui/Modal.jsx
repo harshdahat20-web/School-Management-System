@@ -1,22 +1,16 @@
-import { X } from "lucide-react";
-import { useEffect } from "react";
+import { X } from 'lucide-react'
+import { useEffect } from 'react'
 
-export default function Modal({
-  open,
-  onClose,
-  title,
-  children,
-  width = "max-w-lg",
-}) {
+export default function Modal({ open, onClose, title, children, width = 'max-w-lg' }) {
   useEffect(() => {
     function onKey(e) {
-      if (e.key === "Escape") onClose?.();
+      if (e.key === 'Escape') onClose?.()
     }
-    if (open) document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+    if (open) document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
 
-  if (!open) return null;
+  if (!open) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -31,6 +25,7 @@ export default function Modal({
         aria-modal="true"
         aria-label={title}
       >
+       
         <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-ink-100">
           <h2 className="text-base font-semibold text-ink-900">{title}</h2>
           <button
@@ -44,5 +39,5 @@ export default function Modal({
         <div className="overflow-y-auto p-6">{children}</div>
       </div>
     </div>
-  );
+  )
 }

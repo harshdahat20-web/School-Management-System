@@ -1,6 +1,11 @@
 const User = require("../models/user.model");
 const Student = require("../models/student.model");
-const { createStudentSchema } = require("../validations/student.validation");
+const Classroom = require("../models/classroom.model");
+const generateToken = require("../utils/generateToken");
+const {
+  createStudentSchema,
+  selfRegisterSchema,
+} = require("../validations/student.validation");
 
 const createStudent = async (req, res) => {
   try {
@@ -199,10 +204,107 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const selfRegisterStudent = async (req, res) => {
+  try {
+    const result = selfRegisterSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error.issues[0].message,
+      });
+    }
+
+    const {
+      name,
+      email,
+      password,
+      classRoom,
+      dateOfBirth,
+      gender,
+      parentName,
+      parentPhone,
+      address,
+    } = result.data;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists",
+      });
+    }
+
+    const classroomDoc = await Classroom.findById(classRoom);
+    if (!classroomDoc) {
+      return res.status(400).json({
+        success: false,
+        message: "Selected class does not exist",
+      });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: "student",
+    });
+
+    const totalStudents = await Student.countDocuments();
+    const admissionNumber = `STU-${String(totalStudents + 1).padStart(4, "0")}`;
+
+    const studentsInClass = await Student.countDocuments({ classRoom });
+    const rollNumber = String(studentsInClass + 1);
+
+    const student = await Student.create({
+      user: user._id,
+      admissionNumber,
+      classRoom,
+      rollNumber,
+      dateOfBirth,
+      gender,
+      parentName,
+      parentPhone,
+      address,
+    });
+
+    const token = generateToken(user._id, user.role);
+
+    const cookieOpt = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      maxAge: Number(process.env.COOKIE_MAX_AGE),
+    };
+
+    return res
+      .status(201)
+      .cookie("accessToken", token, cookieOpt)
+      .json({
+        success: true,
+        message: "Registered successfully",
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          student,
+        },
+      });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   createStudent,
   getAllStudents,
   getStudentById,
   updateStudent,
   deleteStudent,
+  selfRegisterStudent,
 };

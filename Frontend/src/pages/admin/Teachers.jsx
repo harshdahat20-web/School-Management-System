@@ -1,101 +1,98 @@
-import { useEffect, useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
-import Card from "../../components/ui/Card.jsx";
-import Button from "../../components/ui/Button.jsx";
-import Modal from "../../components/ui/Modal.jsx";
-import ConfirmDialog from "../../components/ui/ConfirmDialog.jsx";
-import { Field, Input } from "../../components/ui/Field.jsx";
-import { useAuth } from "../../context/AuthContext.jsx";
-import api from "../../lib/api.js";
+import { useEffect, useMemo, useState } from 'react'
+import { Plus, Pencil, Trash2, X as XIcon, Search } from 'lucide-react'
+import Card from '../../components/ui/Card.jsx'
+import Button from '../../components/ui/Button.jsx'
+import Modal from '../../components/ui/Modal.jsx'
+import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx'
+import { Field, Input } from '../../components/ui/Field.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
+import api from '../../lib/api.js'
 
 const emptyForm = {
-  name: "",
-  email: "",
-  password: "",
-  employeeId: "",
+  name: '',
+  email: '',
+  password: '',
+  employeeId: '',
   subjects: [],
-  qualification: "",
-  phone: "",
-};
+  qualification: '',
+  phone: '',
+}
 
 export default function Teachers() {
-  const { user } = useAuth();
-  const canManage = user?.role === "admin";
+  const { user } = useAuth()
+  const canManage = user?.role === 'admin'
 
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
 
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
-  const [subjectInput, setSubjectInput] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState("");
+  const [open, setOpen] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [form, setForm] = useState(emptyForm)
+  const [subjectInput, setSubjectInput] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState('')
 
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    loadTeachers();
-  }, []);
+    loadTeachers()
+  }, [])
 
   async function loadTeachers() {
-    setLoading(true);
-    setError("");
+    setLoading(true)
+    setError('')
     try {
-      const res = await api.get("/teacher");
-      setRows(res.data.data);
+      const res = await api.get('/teacher')
+      setRows(res.data.data)
     } catch (err) {
-      setError(err.response?.data?.message || "Could not load teachers.");
+      setError(err.response?.data?.message || 'Could not load teachers.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   function update(key) {
-    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
   }
 
   function addSubject() {
-    const s = subjectInput.trim();
-    if (!s) return;
-    setForm((f) => ({ ...f, subjects: [...f.subjects, s] }));
-    setSubjectInput("");
+    const s = subjectInput.trim()
+    if (!s) return
+    setForm((f) => ({ ...f, subjects: [...f.subjects, s] }))
+    setSubjectInput('')
   }
 
   function removeSubject(i) {
-    setForm((f) => ({
-      ...f,
-      subjects: f.subjects.filter((_, idx) => idx !== i),
-    }));
+    setForm((f) => ({ ...f, subjects: f.subjects.filter((_, idx) => idx !== i) }))
   }
 
   function openAddModal() {
-    setEditingId(null);
-    setForm(emptyForm);
-    setFormError("");
-    setOpen(true);
+    setEditingId(null)
+    setForm(emptyForm)
+    setFormError('')
+    setOpen(true)
   }
 
   function openEditModal(row) {
-    setEditingId(row._id);
+    setEditingId(row._id)
     setForm({
       ...emptyForm,
-      employeeId: row.employeeId || "",
+      employeeId: row.employeeId || '',
       subjects: row.subjects || [],
-      qualification: row.qualification || "",
-      phone: row.phone || "",
-    });
-    setFormError("");
-    setOpen(true);
+      qualification: row.qualification || '',
+      phone: row.phone || '',
+    })
+    setFormError('')
+    setOpen(true)
   }
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setFormError("");
-    setSaving(true);
+    e.preventDefault()
+    setFormError('')
+    setSaving(true)
     try {
       if (editingId) {
         await api.put(`/teacher/${editingId}`, {
@@ -103,51 +100,49 @@ export default function Teachers() {
           subjects: form.subjects,
           qualification: form.qualification,
           phone: form.phone,
-        });
+        })
       } else {
-        await api.post("/teacher", form);
+        await api.post('/teacher', form)
       }
-      await loadTeachers();
-      setOpen(false);
+      await loadTeachers()
+      setOpen(false)
     } catch (err) {
-      setFormError(err.response?.data?.message || "Could not save teacher.");
+      setFormError(err.response?.data?.message || 'Could not save teacher.')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
   }
 
   async function confirmDelete() {
-    setDeleting(true);
+    setDeleting(true)
     try {
-      await api.delete(`/teacher/${deleteTarget._id}`);
-      setRows((r) => r.filter((row) => row._id !== deleteTarget._id));
-      setDeleteTarget(null);
+      await api.delete(`/teacher/${deleteTarget._id}`)
+      setRows((r) => r.filter((row) => row._id !== deleteTarget._id))
+      setDeleteTarget(null)
     } catch (err) {
-      setError(err.response?.data?.message || "Could not delete teacher.");
-      setDeleteTarget(null);
+      setError(err.response?.data?.message || 'Could not delete teacher.')
+      setDeleteTarget(null)
     } finally {
-      setDeleting(false);
+      setDeleting(false)
     }
   }
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
+    const q = search.trim().toLowerCase()
+    if (!q) return rows
     return rows.filter((r) =>
       [r.user?.name, r.user?.email, r.employeeId, ...(r.subjects || [])]
         .filter(Boolean)
-        .some((v) => v.toLowerCase().includes(q)),
-    );
-  }, [rows, search]);
+        .some((v) => v.toLowerCase().includes(q))
+    )
+  }, [rows, search])
 
   return (
     <div className="max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-ink-900">Teachers</h1>
-          <p className="text-sm text-ink-500 mt-1">
-            Manage your teaching staff.
-          </p>
+          <p className="text-sm text-ink-500 mt-1">Manage your teaching staff.</p>
         </div>
         {canManage && (
           <Button icon={Plus} onClick={openAddModal}>
@@ -157,10 +152,7 @@ export default function Teachers() {
       </div>
 
       <div className="mt-6 relative max-w-xs">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500"
-        />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500" />
         <Input
           placeholder="Search teachers..."
           className="pl-9"
@@ -170,112 +162,90 @@ export default function Teachers() {
       </div>
 
       {error && (
-        <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
-          {error}
-        </p>
+        <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
       )}
 
-      <Card className="mt-4 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-ink-500 border-b border-ink-100">
-                <th className="font-medium px-5 py-3">Name</th>
-                <th className="font-medium px-5 py-3">Email</th>
-                <th className="font-medium px-5 py-3">Employee ID</th>
-                <th className="font-medium px-5 py-3">Subjects</th>
-                <th className="font-medium px-5 py-3">Phone</th>
-                {canManage && (
-                  <th className="font-medium px-5 py-3 text-right">Actions</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-5 py-6 text-center text-ink-500"
-                  >
-                    Loading...
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-5 py-6 text-center text-ink-500"
-                  >
-                    {rows.length === 0
-                      ? "No teachers yet."
-                      : "No teachers match your search."}
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((row) => (
-                  <tr
-                    key={row._id}
-                    className="border-b border-ink-100 last:border-0"
-                  >
-                    <td className="px-5 py-3 text-ink-900 font-medium">
+      {loading ? (
+        <p className="mt-6 text-sm text-ink-500">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <Card className="mt-4 p-10 text-center text-sm text-ink-500">
+          {rows.length === 0 ? 'No teachers yet.' : 'No teachers match your search.'}
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {filtered.map((row) => (
+            <Card key={row._id} className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-full bg-brand-500 text-white flex items-center justify-center font-semibold text-sm shrink-0">
+                    {(row.user?.name || '?')
+                      .split(' ')
+                      .map((w) => w[0])
+                      .slice(0, 2)
+                      .join('')}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-ink-900 truncate">
                       {row.user?.name}
-                    </td>
-                    <td className="px-5 py-3 text-ink-700">
-                      {row.user?.email}
-                    </td>
-                    <td className="px-5 py-3 text-ink-700">{row.employeeId}</td>
-                    <td className="px-5 py-3">
-                      <div className="flex flex-wrap gap-1.5">
-                        {(row.subjects || []).map((s) => (
-                          <span
-                            key={s}
-                            className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-600 text-xs font-medium"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-ink-700">{row.phone}</td>
-                    {canManage && (
-                      <td className="px-5 py-3">
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            className="text-brand-500 hover:text-brand-600"
-                            aria-label="Edit"
-                            onClick={() => openEditModal(row)}
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            className="text-red-500 hover:text-red-600"
-                            aria-label="Delete"
-                            onClick={() => setDeleteTarget(row)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </p>
+                    <p className="text-xs text-ink-500 truncate">{row.user?.email}</p>
+                  </div>
+                </div>
+                {canManage && (
+                  <div className="flex items-center gap-3 shrink-0 pl-2">
+                    <button
+                      className="text-brand-500 hover:text-brand-600"
+                      aria-label="Edit"
+                      onClick={() => openEditModal(row)}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-600"
+                      aria-label="Delete"
+                      onClick={() => setDeleteTarget(row)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-t border-ink-100">
-          <p className="text-xs text-ink-500">
-            Showing 1-{filtered.length} of {rows.length}
-          </p>
+              <div className="flex flex-wrap gap-1.5 mt-4">
+                {(row.subjects || []).map((s) => (
+                  <span
+                    key={s}
+                    className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 text-xs font-medium"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-ink-100 text-xs">
+                <div>
+                  <p className="text-ink-500">Employee ID</p>
+                  <p className="text-ink-900 font-medium mt-0.5">{row.employeeId}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-ink-500">Phone</p>
+                  <p className="text-ink-900 font-medium mt-0.5">{row.phone || '—'}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
-      </Card>
+      )}
+
+      <p className="text-xs text-ink-500 mt-4">
+        Showing {filtered.length} of {rows.length} teachers
+      </p>
 
       {canManage && (
         <Modal
           open={open}
           onClose={() => setOpen(false)}
-          title={editingId ? "Edit Teacher" : "Add Teacher"}
+          title={editingId ? 'Edit Teacher' : 'Add Teacher'}
           width="max-w-2xl"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -287,7 +257,7 @@ export default function Teachers() {
                       required
                       placeholder="Enter full name"
                       value={form.name}
-                      onChange={update("name")}
+                      onChange={update('name')}
                     />
                   </Field>
                   <Field label="Email">
@@ -296,7 +266,7 @@ export default function Teachers() {
                       required
                       placeholder="teacher@example.com"
                       value={form.email}
-                      onChange={update("email")}
+                      onChange={update('email')}
                     />
                   </Field>
                 </div>
@@ -307,7 +277,7 @@ export default function Teachers() {
                     minLength={6}
                     placeholder="Create password"
                     value={form.password}
-                    onChange={update("password")}
+                    onChange={update('password')}
                   />
                 </Field>
               </>
@@ -315,8 +285,8 @@ export default function Teachers() {
 
             {editingId && (
               <p className="text-xs text-ink-500 bg-ink-100 rounded-lg px-3 py-2">
-                Name, email, and password can't be changed here — only
-                teacher-specific details below.
+                Name, email, and password can't be changed here — only teacher-specific
+                details below.
               </p>
             )}
 
@@ -325,7 +295,7 @@ export default function Teachers() {
                 required
                 placeholder="Enter employee ID"
                 value={form.employeeId}
-                onChange={update("employeeId")}
+                onChange={update('employeeId')}
               />
             </Field>
 
@@ -336,9 +306,9 @@ export default function Teachers() {
                   value={subjectInput}
                   onChange={(e) => setSubjectInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addSubject();
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addSubject()
                     }
                   }}
                 />
@@ -367,34 +337,22 @@ export default function Teachers() {
               <Input
                 placeholder="Enter qualification"
                 value={form.qualification}
-                onChange={update("qualification")}
+                onChange={update('qualification')}
               />
             </Field>
 
             <Field label="Phone">
-              <Input
-                placeholder="Enter phone number"
-                value={form.phone}
-                onChange={update("phone")}
-              />
+              <Input placeholder="Enter phone number" value={form.phone} onChange={update('phone')} />
             </Field>
 
             {formError && <p className="text-sm text-red-500">{formError}</p>}
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setOpen(false)}
-              >
+              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving
-                  ? "Saving..."
-                  : editingId
-                    ? "Save Changes"
-                    : "Add Teacher"}
+                {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Add Teacher'}
               </Button>
             </div>
           </form>
@@ -407,12 +365,12 @@ export default function Teachers() {
         message={
           deleteTarget
             ? `This will permanently delete ${deleteTarget.user?.name} and their login access. This can't be undone.`
-            : ""
+            : ''
         }
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
         loading={deleting}
       />
     </div>
-  );
+  )
 }
