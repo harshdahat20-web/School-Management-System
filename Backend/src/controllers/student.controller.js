@@ -203,10 +203,6 @@ const deleteStudent = async (req, res) => {
   }
 };
 
-// Public — a student registers themselves. Unlike admin-created students,
-// admissionNumber and rollNumber are generated here (not provided by the
-// client), and on success the user is logged in immediately (same cookie
-// as /api/auth/login) so the frontend can go straight to the dashboard.
 const selfRegisterStudent = async (req, res) => {
   try {
     const result = selfRegisterSchema.safeParse(req.body);
@@ -260,17 +256,24 @@ const selfRegisterStudent = async (req, res) => {
     const studentsInClass = await Student.countDocuments({ classRoom });
     const rollNumber = String(studentsInClass + 1);
 
-    await Student.create({
-      user: user._id,
-      admissionNumber,
-      classRoom,
-      rollNumber,
-      dateOfBirth,
-      gender,
-      parentName,
-      parentPhone,
-      address,
-    });
+    const cleanGender = gender || undefined;
+
+    try {
+      await Student.create({
+        user: user._id,
+        admissionNumber,
+        classRoom,
+        rollNumber,
+        dateOfBirth,
+        gender: cleanGender,
+        parentName,
+        parentPhone,
+        address,
+      });
+    } catch (studentErr) {
+      await User.findByIdAndDelete(user._id);
+      throw studentErr;
+    }
 
     return res.status(201).json({
       success: true,
