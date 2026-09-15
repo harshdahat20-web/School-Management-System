@@ -45,7 +45,6 @@ export default function Sidebar({ open = false, onClose }) {
 
   return (
     <>
-      {/* Overlay - mobile only, shown when drawer is open */}
       {open && (
         <div
           className="fixed inset-0 z-30 bg-ink-900/40 lg:hidden"
@@ -55,7 +54,7 @@ export default function Sidebar({ open = false, onClose }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 bg-sidebar border-r border-white/10 h-screen flex flex-col transition-transform duration-200 ease-out
+        className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 bg-sidebar border-r border-white/10 flex flex-col transition-transform duration-200 ease-out
           lg:sticky lg:top-0 lg:translate-x-0
           ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
