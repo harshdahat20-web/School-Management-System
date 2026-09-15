@@ -9,19 +9,19 @@ export default {
         background: "#F0EFEB",
 
         sidebar: {
-          DEFAULT: "#211E54",
-          hover: "#2B2766",
-          active: "#FF7518",
+          DEFAULT: "#064E3B",
+          hover: "#0B6B52",
+          active: "#F59E0B",
           text: "#FFFFFF",
           muted: "#FFFFFF",
         },
 
         brand: {
-          50: "#FFF1E5",
-          100: "#FFDEC2",
-          500: "#FF7518",
-          600: "#F26300",
-          700: "#D95400",
+          50: "#E6F4EF",
+          100: "#C2E4D6",
+          500: "#064E3B",
+          600: "#053D2F",
+          700: "#032A21",
         },
 
         indigo: {
