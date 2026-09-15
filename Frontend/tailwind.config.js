@@ -13,7 +13,7 @@ export default {
           hover: "#2B2766",
           active: "#FF7518",
           text: "#FFFFFF",
-          muted: "#D8D6F0",
+          muted: "#FFFFFF",
         },
 
         brand: {
