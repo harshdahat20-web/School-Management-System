@@ -205,16 +205,45 @@ const selfRegisterTeacher = async (req, res) => {
       status: "pending",
     });
 
-    const totalTeachers = await Teacher.countDocuments();
-    const employeeId = `EMP-${String(totalTeachers + 1).padStart(4, "0")}`;
+    // Generate employeeId from the current MAX value (not a document count),
+    // and retry a few times on a duplicate-key race so two near-simultaneous
+    // registrations can never collide on the same employeeId.
+    const MAX_ATTEMPTS = 5;
+    let created = null;
+    let lastError = null;
 
-    await Teacher.create({
-      user: user._id,
-      employeeId,
-      subjects,
-      qualification,
-      phone,
-    });
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const lastTeacher = await Teacher.findOne({
+        employeeId: { $regex: /^EMP-\d+$/ },
+      })
+        .sort({ employeeId: -1 })
+        .select("employeeId")
+        .lean();
+
+      const lastNumber = lastTeacher
+        ? parseInt(lastTeacher.employeeId.split("-")[1], 10)
+        : 0;
+      const employeeId = `EMP-${String(lastNumber + 1 + attempt).padStart(4, "0")}`;
+
+      try {
+        created = await Teacher.create({
+          user: user._id,
+          employeeId,
+          subjects,
+          qualification,
+          phone,
+        });
+        break;
+      } catch (teacherErr) {
+        lastError = teacherErr;
+        if (teacherErr?.code !== 11000) break;
+      }
+    }
+
+    if (!created) {
+      await User.findByIdAndDelete(user._id);
+      throw lastError;
+    }
 
     return res.status(201).json({
       success: true,

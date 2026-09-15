@@ -250,29 +250,61 @@ const selfRegisterStudent = async (req, res) => {
       status: "pending",
     });
 
-    const totalStudents = await Student.countDocuments();
-    const admissionNumber = `STU-${String(totalStudents + 1).padStart(4, "0")}`;
-
-    const studentsInClass = await Student.countDocuments({ classRoom });
-    const rollNumber = String(studentsInClass + 1);
-
     const cleanGender = gender || undefined;
 
-    try {
-      await Student.create({
-        user: user._id,
-        admissionNumber,
-        classRoom,
-        rollNumber,
-        dateOfBirth,
-        gender: cleanGender,
-        parentName,
-        parentPhone,
-        address,
-      });
-    } catch (studentErr) {
+    // Generate admissionNumber/rollNumber from the current MAX value (not a
+    // document count), and retry a few times on a duplicate-key race so two
+    // near-simultaneous registrations can never collide on the same number.
+    const MAX_ATTEMPTS = 5;
+    let created = null;
+    let lastError = null;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const lastStudent = await Student.findOne({
+        admissionNumber: { $regex: /^STU-\d+$/ },
+      })
+        .sort({ admissionNumber: -1 })
+        .select("admissionNumber")
+        .lean();
+
+      const lastNumber = lastStudent
+        ? parseInt(lastStudent.admissionNumber.split("-")[1], 10)
+        : 0;
+      const admissionNumber = `STU-${String(lastNumber + 1 + attempt).padStart(4, "0")}`;
+
+      const lastInClass = await Student.findOne({ classRoom })
+        .sort({ rollNumber: -1 })
+        .select("rollNumber")
+        .lean();
+      const lastRoll = lastInClass
+        ? parseInt(lastInClass.rollNumber, 10) || 0
+        : 0;
+      const rollNumber = String(lastRoll + 1 + attempt);
+
+      try {
+        created = await Student.create({
+          user: user._id,
+          admissionNumber,
+          classRoom,
+          rollNumber,
+          dateOfBirth,
+          gender: cleanGender,
+          parentName,
+          parentPhone,
+          address,
+        });
+        break;
+      } catch (studentErr) {
+        lastError = studentErr;
+        // Only retry on a duplicate-key race (code 11000); anything else is
+        // a real error and should fail immediately.
+        if (studentErr?.code !== 11000) break;
+      }
+    }
+
+    if (!created) {
       await User.findByIdAndDelete(user._id);
-      throw studentErr;
+      throw lastError;
     }
 
     return res.status(201).json({
