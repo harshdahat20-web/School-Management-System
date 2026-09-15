@@ -1,64 +1,89 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
+  content: ["./index.html", "./src/**/*.{js,jsx}"],
+
   theme: {
     extend: {
       colors: {
-        cream: '#F3F1FC',
+        // Main background
+        cream: "#F5F7FA",
+        background: "#F5F7FA",
+
+        // Sidebar
         sidebar: {
-          DEFAULT: '#FFFFFF',
-          hover: '#F3F1FC',
-          active: '#F2603D',
+          DEFAULT: "#211E54",
+          hover: "#2B2766",
+          active: "#FF7518",
+          text: "#FFFFFF",
+          muted: "#C8C6E8",
         },
+
+        // Orange
         brand: {
-          50: '#FDEDE9',
-          100: '#FBD9D0',
-          500: '#F2603D',
-          600: '#D94F2E',
-          700: '#B23F24',
+          50: "#FFF3E8",
+          100: "#FFE1C7",
+          500: "#FF7518",
+          600: "#F26300",
+          700: "#D95400",
         },
+
+        // Purple / Login button
         indigo: {
-          50: '#EFEDFC',
-          100: '#DDD8F9',
-          500: '#6C5DD3',
-          600: '#5847B8',
+          50: "#F0EFFF",
+          100: "#E3E1FF",
+          500: "#5046E5",
+          600: "#4638D5",
+          700: "#392DB5",
         },
-        teal: {
-          50: '#E8F8F6',
-          100: '#CBEFEA',
-          500: '#45B8AC',
-          600: '#379288',
+
+        // Cards
+        success: {
+          50: "#EEEEFF",
+          100: "#E1E0FF",
+          500: "#5046E5",
         },
-        amber: {
-          50: '#FEF3E0',
-          100: '#FCE2B8',
-          500: '#F5A623',
-          600: '#D68F13',
+
+        warning: {
+          50: "#FDEDE8",
+          100: "#F9DAD2",
+          500: "#E85D3F",
         },
-        sky: {
-          50: '#EAF4FB',
-          100: '#CFE7F5',
-          500: '#4A90C2',
-          600: '#3B77A3',
-        },
+
+        // Text
         ink: {
-          900: '#1E1B2C',
-          700: '#5B5670',
-          500: '#8D89A0',
-          300: '#D6D3E3',
-          100: '#F1EFFA',
+          900: "#17152B",
+          800: "#211E3A",
+          700: "#4B4960",
+          500: "#77758A",
+          400: "#9997A8",
+          300: "#D7D6DF",
+          200: "#E5E4EA",
+          100: "#F1F1F5",
+        },
+
+        // Form
+        input: {
+          border: "#D9DCE5",
+          focus: "#5046E5",
+          placeholder: "#9A9AA8",
         },
       },
+
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
+
       boxShadow: {
-        card: '0 1px 3px rgba(45, 42, 38, 0.08), 0 1px 2px rgba(45, 42, 38, 0.04)',
+        card: "0 2px 8px rgba(33, 30, 84, 0.06)",
+        soft: "0 4px 16px rgba(33, 30, 84, 0.08)",
       },
+
       borderRadius: {
-        xl2: '14px',
+        xl2: "14px",
+        "2xl": "16px",
       },
     },
   },
+
   plugins: [],
-}
+};
